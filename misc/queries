@@ -1,3 +1,8 @@
+--- mongo in docker
+docker network create -d bridge mongo-network
+docker run -d --network mongo-network --name my-mongo -p 27017:27017 -v mongo:/data/db mongo
+docker run -d --network mongo-network -e ME_CONFIG_MONGODB_SERVER=my-mongo -p 8081:8081 mongo-express
+
 ---
 
 mutation addUser {
