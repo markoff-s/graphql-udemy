@@ -1,0 +1,54 @@
+---
+
+mutation addUser {
+  addUser(firstName: "xz", age:222) {
+    id
+    firstName
+    age
+  }
+}
+
+---
+
+query users {
+  users {
+    id
+    firstName
+    age
+    company{
+      ...companyDetails
+    }
+  }
+}
+
+fragment companyDetails on Company {
+  id
+  name
+  sector
+}
+
+---
+
+{
+  users {
+    ...userDetails
+  }
+}
+
+fragment userDetails on User {
+   id
+  firstName
+  age
+  company
+  {
+    ...companyDetails
+  }
+}
+
+fragment companyDetails on Company {
+  id
+  name
+  sector
+}
+
+---

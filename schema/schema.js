@@ -1,6 +1,6 @@
 const graphql = require('graphql')
 const {
-    GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList
+    GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList, GraphQLNonNull
 } = graphql
 
 const _ = require('lodash')
@@ -53,6 +53,12 @@ const RootQuery = new GraphQLObjectType({
                 return _.find(users, { id: args.id })
             }
         },
+        users: {
+            type: new GraphQLList(UserType),            
+            resolve(parentValue, args) {
+                return users
+            }
+        },
         company: { 
             type: CompanyType,
             args: { id: { type: GraphQLInt } },
@@ -63,7 +69,62 @@ const RootQuery = new GraphQLObjectType({
     }
 })
 
+const usersMutation = new GraphQLObjectType({
+    name: 'UsersMutation',
+    fields: () => ({
+        addUser: {
+            type: UserType,
+            args: {
+                firstName: {type: new GraphQLNonNull(GraphQLString)},
+                age: { type: new GraphQLNonNull(GraphQLInt) },
+                companyId: { type: GraphQLInt }
+            },
+            resolve(parentValue, args) {
+                console.log(args)
+                
+                args.id = 777
+                users.push(args)
+
+                return args;
+            }
+        },
+        deleteUser: {
+            type: UserType,
+            args: {                
+                id: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parentValue, args) {
+                console.log(args)
+                
+                user = _.remove(users, { id: args.id })
+                console.log('deleted user: ' + JSON.stringify(user))
+
+                return user.pop()
+            }
+        },
+        updateUser: {
+            type: UserType,
+            args: {                
+                id: { type: new GraphQLNonNull(GraphQLInt) },
+                firstName: {type: new GraphQLNonNull(GraphQLString)},
+                age: { type: new GraphQLNonNull(GraphQLInt) },
+            },
+            resolve(parentValue, args) {
+                console.log(args)
+                
+                user = _.find(users, { id: args.id })
+                user.firstName = args.firstName
+                user.age = args.age
+                console.log('updated user: ' + JSON.stringify(user))
+
+                return user
+            }
+        }
+    })
+})
+
 
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation: usersMutation    
 })
